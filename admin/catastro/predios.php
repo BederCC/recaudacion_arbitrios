@@ -5,18 +5,49 @@ renderHeader('Predios');
 ?>
 
 <div x-data="prediosApp()" x-init="init()" class="container mx-auto">
-   <div class="mb-6 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-gray-800">Padrón de Predios</h1>
+   <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex items-center gap-3">
+         <h1 class="text-2xl font-bold text-gray-800">Padrón de Predios</h1>
+         <span class="bg-green-100 text-green-800 text-xs font-bold px-3 py-1 rounded-full shadow-sm" x-text="'Total: ' + items.length + ' predios'"></span>
+         <template x-if="urlContribuyenteId">
+            <span class="bg-amber-100 text-amber-800 text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
+               Filtrado por contribuyente
+               <button @click="clearFilter()" class="underline font-bold text-amber-900 ml-1 hover:text-black">✕ Quitar filtro</button>
+            </span>
+         </template>
+      </div>
       <button @click="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition transform hover:scale-105">
          + Nuevo Predio
       </button>
+   </div>
+
+   <!-- Search & Filter -->
+   <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+      <div class="flex gap-2 w-full md:w-auto">
+         <input
+            type="text"
+            x-model="search"
+            @keydown.enter="fetchData()"
+            class="border rounded px-4 py-2 w-full md:w-80 focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+            placeholder="Buscar por Dirección, Código o Propietario...">
+         <button @click="fetchData()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded shadow text-sm font-semibold">
+            Buscar
+         </button>
+         <button x-show="search" @click="search = ''; fetchData()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm">
+            Limpiar
+         </button>
+      </div>
+      <div class="text-xs text-gray-500">
+         Mostrando <strong class="text-gray-800" x-text="items.length"></strong> predios
+      </div>
    </div>
 
    <!-- Table -->
    <div class="bg-white shadow-md rounded overflow-x-auto">
       <table class="min-w-full table-auto">
          <thead>
-            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+            <tr class="bg-gray-200 text-gray-600 uppercase text-xs leading-normal">
+               <th class="py-3 px-4 text-center w-16">N°</th>
                <th class="py-3 px-6 text-left">Código / Dirección</th>
                <th class="py-3 px-6 text-left">Propietario</th>
                <th class="py-3 px-6 text-left">Uso</th>
@@ -26,28 +57,34 @@ renderHeader('Predios');
             </tr>
          </thead>
          <tbody class="text-gray-600 text-sm font-light">
-            <template x-for="row in items" :key="row.id">
+            <template x-for="(row, index) in items" :key="row.id">
                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                  <td class="py-3 px-4 text-center font-bold text-gray-500 bg-gray-50/50" x-text="index + 1"></td>
                   <td class="py-3 px-6 text-left">
-                     <div class="font-bold" x-text="row.codigo_catastral"></div>
-                     <div class="text-xs" x-text="row.direccion_predio"></div>
+                     <div class="font-bold text-gray-800" x-text="row.codigo_catastral"></div>
+                     <div class="text-xs text-gray-500" x-text="row.direccion_predio"></div>
                   </td>
-                  <td class="py-3 px-6 text-left" x-text="row.nombre_razon_social"></td>
-                  <td class="py-3 px-6 text-left" x-text="row.uso_descripcion"></td>
-                  <td class="py-3 px-6 text-right" x-text="'S/ ' + parseFloat(row.valor_autovaluo).toFixed(2)"></td>
-                  <td class="py-3 px-6 text-center">
-                     <span :class="row.estado === 'ACTIVO' ? 'bg-green-200 text-green-600' : 'bg-red-200 text-red-600'" class="py-1 px-3 rounded-full text-xs" x-text="row.estado"></span>
+                  <td class="py-3 px-6 text-left font-medium" x-text="row.nombre_razon_social"></td>
+                  <td class="py-3 px-6 text-left">
+                     <span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs" x-text="row.uso_descripcion"></span>
                   </td>
+                  <td class="py-3 px-6 text-right font-medium text-gray-800" x-text="'S/ ' + parseFloat(row.valor_autovaluo).toFixed(2)"></td>
                   <td class="py-3 px-6 text-center">
+                     <span :class="row.estado === 'ACTIVO' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="py-1 px-3 rounded-full text-xs font-semibold" x-text="row.estado"></span>
+                  </td>
+                  <td class="py-3 px-6 text-center whitespace-nowrap">
                      <button @click="openModal(row)" class="text-blue-500 hover:text-blue-700 font-bold">Editar</button>
                   </td>
                </tr>
             </template>
             <tr x-show="items.length === 0">
-               <td colspan="6" class="py-6 text-center text-gray-500">No se encontraron registros.</td>
+               <td colspan="7" class="py-6 text-center text-gray-500">No se encontraron predios registrados.</td>
             </tr>
          </tbody>
       </table>
+      <div class="p-4 bg-gray-50 border-t border-gray-200 text-xs text-gray-500 flex justify-between items-center">
+         <span>Total de predios en lista: <strong class="text-gray-800" x-text="items.length"></strong></span>
+      </div>
    </div>
 
    <!-- Modal -->
@@ -165,6 +202,8 @@ renderHeader('Predios');
       return {
          items: [],
          usos: [],
+         search: '',
+         urlContribuyenteId: null,
          showModal: false,
          isEdit: false,
          loading: false,
@@ -189,12 +228,20 @@ renderHeader('Predios');
          },
 
          init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.urlContribuyenteId = urlParams.get('contribuyente_id');
             this.fetchData();
             this.$watch('form.area_construida', () => this.calculateAutovaluo());
             this.$watch('form.longitud_frente', () => this.calculateAutovaluo());
             this.$watch('form.tipo_uso_id', () => this.calculateAutovaluo());
             this.$watch('form.anio_declaracion', () => this.fetchUITAndCalculate());
             this.fetchUITAndCalculate(); // Initial fetch
+         },
+
+         clearFilter() {
+            this.urlContribuyenteId = null;
+            window.history.replaceState({}, document.title, window.location.pathname);
+            this.fetchData();
          },
 
          async fetchUITAndCalculate() {
@@ -268,8 +315,16 @@ renderHeader('Predios');
 
          async fetchData() {
             try {
+               let url = '../../api/admin/predios.php?limit=2000';
+               if (this.urlContribuyenteId) {
+                  url += `&contribuyente_id=${encodeURIComponent(this.urlContribuyenteId)}`;
+               }
+               if (this.search) {
+                  url += `&q=${encodeURIComponent(this.search)}`;
+               }
+
                // Fetch Predios
-               const resPredios = await fetch('../../api/admin/predios.php');
+               const resPredios = await fetch(url);
                const dataPredios = await resPredios.json();
                this.items = dataPredios.predios || [];
 

@@ -69,6 +69,9 @@ function renderHeader($title)
             <a href="<?php echo url('admin/reportes/ingresos.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'ingresos.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">📈</span> Ingresos
             </a>
+            <a href="<?php echo url('admin/requerimientos_datos.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'requerimientos_datos.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">📋</span> Requerimientos
+            </a>
          </nav>
 
          <div class="p-4 border-t border-blue-800">

@@ -31,15 +31,27 @@ if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'next_cod
 } elseif ($method === 'GET') {
    // List / Search
    $contribuyente_id = $_GET['contribuyente_id'] ?? null;
-   $limit = $_GET['limit'] ?? 50;
+   $q = trim($_GET['q'] ?? '');
+   $limit = $_GET['limit'] ?? 2000;
 
-   $where = '';
+   $conditions = [];
    $params = [];
 
    if ($contribuyente_id) {
-      $where = "WHERE p.contribuyente_id = ?";
+      $conditions[] = "p.contribuyente_id = ?";
       $params[] = $contribuyente_id;
    }
+
+   if (!empty($q)) {
+      $conditions[] = "(p.codigo_catastral LIKE ? OR p.direccion_predio LIKE ? OR c.nombre_razon_social LIKE ? OR c.numero_documento LIKE ?)";
+      $searchTerm = "%$q%";
+      $params[] = $searchTerm;
+      $params[] = $searchTerm;
+      $params[] = $searchTerm;
+      $params[] = $searchTerm;
+   }
+
+   $where = !empty($conditions) ? "WHERE " . implode(' AND ', $conditions) : '';
 
    try {
       $stmt = $pdo->prepare(

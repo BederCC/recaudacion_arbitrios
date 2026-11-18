@@ -186,7 +186,7 @@ if (!$dni) {
                </button>
 
                <div class="mt-4 flex justify-center space-x-2">
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" class="h-6 opacity-50">
+                  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5c/Visa_Inc._logo_%282021%E2%80%93present%29.svg/3840px-Visa_Inc._logo_%282021%E2%80%93present%29.svg.png?utm_source=es.wikipedia.org&utm_campaign=index&utm_content=thumbnail" class="h-6 opacity-50">
                   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" class="h-6 opacity-50">
                </div>
             </div>

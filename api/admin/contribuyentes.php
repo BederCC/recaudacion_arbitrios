@@ -18,7 +18,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 if ($method === 'GET') {
    // Search / List
    $search = $_GET['q'] ?? '';
-   $limit = $_GET['limit'] ?? 50;
+   $limit = $_GET['limit'] ?? 2000;
 
    $where = '';
    $params = [];
