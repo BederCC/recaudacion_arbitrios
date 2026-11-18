@@ -37,7 +37,7 @@ function renderHeader($title)
                <span class="mr-3">📊</span> Dashboard
             </a>
 
-            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase">Gestión</div>
+            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase font-bold tracking-wider">Gestión Catastral</div>
 
             <a href="<?php echo url('admin/catastro/contribuyentes.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'contribuyentes.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">👥</span> Contribuyentes
@@ -46,16 +46,31 @@ function renderHeader($title)
                <span class="mr-3">🏠</span> Predios
             </a>
 
-            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase">Procesos</div>
+            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase font-bold tracking-wider">Tributos y Cobranza</div>
 
             <a href="<?php echo url('admin/emision/index.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'emision') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">⚙️</span> Emisión Masiva
             </a>
-            <a href="<?php echo url('admin/caja/index.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'caja') ? 'bg-blue-800' : ''; ?>">
+            <a href="<?php echo url('admin/caja/index.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo (strpos($_SERVER['PHP_SELF'], 'caja/index.php') || (strpos($_SERVER['PHP_SELF'], 'caja/') && !strpos($_SERVER['PHP_SELF'], 'conciliacion.php'))) ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">💰</span> Caja / POS
             </a>
+            <a href="<?php echo url('admin/caja/conciliacion.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'conciliacion.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">📑</span> Conciliación Caja
+            </a>
 
-            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase">Configuración</div>
+            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase font-bold tracking-wider">Seguimiento y Control</div>
+
+            <a href="<?php echo url('admin/reportes/morosidad.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'morosidad.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">⚠️</span> Morosidad y Cartera
+            </a>
+            <a href="<?php echo url('admin/reportes/ingresos.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'ingresos.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">📈</span> Ingresos
+            </a>
+            <a href="<?php echo url('admin/auditoria/logs.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'auditoria/logs.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">🛡️</span> Bitácora de Logs
+            </a>
+
+            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase font-bold tracking-wider">Configuración y Tesis</div>
 
             <a href="<?php echo url('admin/config/anios.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'anios.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">📅</span> Años Fiscales
@@ -63,11 +78,8 @@ function renderHeader($title)
             <a href="<?php echo url('admin/config/tasas.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'tasas.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">💲</span> Tasas Arbitrios
             </a>
-
-            <div class="px-4 pt-4 pb-1 text-xs text-gray-400 uppercase">Reportes</div>
-
-            <a href="<?php echo url('admin/reportes/ingresos.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'ingresos.php') ? 'bg-blue-800' : ''; ?>">
-               <span class="mr-3">📈</span> Ingresos
+            <a href="<?php echo url('admin/reportes/evaluacion_tesis.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'evaluacion_tesis.php') ? 'bg-blue-800' : ''; ?>">
+               <span class="mr-3">🎓</span> Evaluación de Tesis
             </a>
             <a href="<?php echo url('admin/requerimientos_datos.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'requerimientos_datos.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">📋</span> Requerimientos

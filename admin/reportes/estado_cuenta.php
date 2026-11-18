@@ -59,8 +59,8 @@ $totalDeuda = 0;
          <div class="flex items-center">
             <div class="text-3xl mr-4">🏛️</div>
             <div>
-               <h1 class="text-xl font-bold uppercase">Municipalidad Distrital X</h1>
-               <p class="text-sm text-gray-500">Gerencia de Administración Tributaria</p>
+               <h1 class="text-xl font-bold uppercase">Municipalidad Distrital de Oropesa</h1>
+               <p class="text-sm text-gray-500">Gerencia de Administración Tributaria y Rentas</p>
             </div>
          </div>
          <div class="text-right">

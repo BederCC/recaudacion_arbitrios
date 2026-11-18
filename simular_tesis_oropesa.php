@@ -15,6 +15,7 @@
 $isCli = (php_sapi_name() === 'cli');
 
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/auditoria.php';
 
 ini_set('memory_limit', '1024M');
 set_time_limit(600);
@@ -199,6 +200,8 @@ if (isset($_POST['ajax_action'])) {
                 $pdo->exec("TRUNCATE TABLE `predios`;");
                 $pdo->exec("TRUNCATE TABLE `contribuyentes`;");
                 $pdo->exec("TRUNCATE TABLE `caja_sesiones`;");
+                asegurarTablaAuditoria($pdo);
+                $pdo->exec("TRUNCATE TABLE `auditoria_logs`;");
                 $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
                 echo json_encode([
@@ -558,6 +561,17 @@ if (isset($_POST['ajax_action'])) {
                 ]);
                 exit;
 
+            case 'paso_logs':
+                // Paso 7: Simulación de Bitácora de Auditoría (Trazabilidad Tesis)
+                asegurarTablaAuditoria($pdo);
+                $totalLogs = generarLogsSimuladosTesis($pdo);
+                echo json_encode([
+                    'success' => true,
+                    'count' => $totalLogs,
+                    'message' => "Se registraron {$totalLogs} eventos cronológicos de auditoría y trazabilidad en la bitácora."
+                ]);
+                exit;
+
             case 'get_stats':
                 // Estadísticas actuales
                 $cContrib = $pdo->query("SELECT COUNT(*) FROM contribuyentes")->fetchColumn() ?: 0;
@@ -565,6 +579,8 @@ if (isset($_POST['ajax_action'])) {
                 $cDeudas  = $pdo->query("SELECT COUNT(*) FROM cta_cte_tributaria")->fetchColumn() ?: 0;
                 $cRecibos = $pdo->query("SELECT COUNT(*) FROM recibos")->fetchColumn() ?: 0;
                 $cUser    = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?: 0;
+                asegurarTablaAuditoria($pdo);
+                $cLogs    = $pdo->query("SELECT COUNT(*) FROM auditoria_logs")->fetchColumn() ?: 0;
 
                 echo json_encode([
                     'success' => true,
@@ -573,7 +589,8 @@ if (isset($_POST['ajax_action'])) {
                         'predios' => (int)$cPredios,
                         'deudas' => (int)$cDeudas,
                         'recibos' => (int)$cRecibos,
-                        'usuarios' => (int)$cUser
+                        'usuarios' => (int)$cUser,
+                        'logs' => (int)$cLogs
                     ]
                 ]);
                 exit;
@@ -600,6 +617,8 @@ $countPredios = $pdo->query("SELECT COUNT(*) FROM predios")->fetchColumn() ?: 0;
 $countDeudas  = $pdo->query("SELECT COUNT(*) FROM cta_cte_tributaria")->fetchColumn() ?: 0;
 $countRecibos = $pdo->query("SELECT COUNT(*) FROM recibos")->fetchColumn() ?: 0;
 $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?: 0;
+asegurarTablaAuditoria($pdo);
+$countLogs = $pdo->query("SELECT COUNT(*) FROM auditoria_logs")->fetchColumn() ?: 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -645,27 +664,30 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
                 </button>
             </h2>
 
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <span id="stat-contrib" class="text-2xl font-black text-slate-800"><?php echo number_format($countContrib); ?></span>
-                    <p class="text-xs text-slate-500 font-medium mt-1">Contribuyentes</p>
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span id="stat-contrib" class="text-xl font-black text-slate-800"><?php echo number_format($countContrib); ?></span>
+                    <p class="text-[11px] text-slate-500 font-medium mt-1">Contribuyentes</p>
                 </div>
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <span id="stat-predios" class="text-2xl font-black text-slate-800"><?php echo number_format($countPredios); ?></span>
-                    <p class="text-xs text-slate-500 font-medium mt-1">Predios Catastrados</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span id="stat-predios" class="text-xl font-black text-slate-800"><?php echo number_format($countPredios); ?></span>
+                    <p class="text-[11px] text-slate-500 font-medium mt-1">Predios</p>
                 </div>
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <span id="stat-deudas" class="text-2xl font-black text-slate-800"><?php echo number_format($countDeudas); ?></span>
-                    <p class="text-xs text-slate-500 font-medium mt-1">Cuotas Tributarias</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span id="stat-deudas" class="text-xl font-black text-slate-800"><?php echo number_format($countDeudas); ?></span>
+                    <p class="text-[11px] text-slate-500 font-medium mt-1">Cuotas Deuda</p>
                 </div>
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-center">
-                    <span id="stat-recibos" class="text-2xl font-black text-slate-800"><?php echo number_format($countRecibos); ?></span>
-                    <p class="text-xs text-slate-500 font-medium mt-1">Recibos de Pago</p>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                    <span id="stat-recibos" class="text-xl font-black text-slate-800"><?php echo number_format($countRecibos); ?></span>
+                    <p class="text-[11px] text-slate-500 font-medium mt-1">Recibos Pago</p>
                 </div>
-                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center col-span-2 md:col-span-1">
-                    <span id="stat-users" class="text-2xl font-black text-emerald-800"><?php echo $countTotalUser; ?></span>
-                    <p class="text-xs text-emerald-700 font-semibold mt-1">Usuarios (Protegidos)</p>
-                    <span class="text-[10px] text-emerald-600 block mt-0.5">Admin intactos</span>
+                <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-3 text-center">
+                    <span id="stat-logs" class="text-xl font-black text-indigo-800"><?php echo number_format($countLogs); ?></span>
+                    <p class="text-[11px] text-indigo-700 font-medium mt-1">Bitácora Logs</p>
+                </div>
+                <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-center">
+                    <span id="stat-users" class="text-xl font-black text-emerald-800"><?php echo $countTotalUser; ?></span>
+                    <p class="text-[11px] text-emerald-700 font-semibold mt-1">Usuarios Admin</p>
                 </div>
             </div>
         </div>
@@ -745,6 +767,11 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
                         Limpiar y Regenerar de Cero
                     </button>
                 </div>
+                <div class="mt-2 text-center">
+                    <button onclick="ejecutarSimularLogsSolo()" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline">
+                        ⚡ O generar únicamente los eventos de Bitácora / Auditoría (Logs)
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -760,21 +787,32 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
         </div>
 
         <!-- Enlaces rápidos de navegación -->
-        <div class="flex flex-wrap justify-between items-center gap-4 bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-            <span class="text-xs text-slate-500 font-medium">Accesos directos del sistema SART:</span>
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div>
+                <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Módulos del Sistema SART (Tesis Oropesa):</span>
+                <span class="text-[11px] text-slate-400">Accede directamente a cada componente implementado</span>
+            </div>
             <div class="flex flex-wrap gap-2">
-                <a href="admin/dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm transition flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    Panel de Control (Dashboard)
+                <a href="admin/dashboard.php" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 px-3.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                    📊 Dashboard
                 </a>
                 <a href="admin/catastro/contribuyentes.php" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300 transition">
-                    Padrón de Contribuyentes
+                    👥 Contribuyentes
                 </a>
                 <a href="admin/catastro/predios.php" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300 transition">
-                    Padrón de Predios
+                    🏠 Predios
                 </a>
-                <a href="admin/caja/index.php" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300 transition">
-                    Caja / Ventanilla
+                <a href="admin/reportes/morosidad.php" class="bg-red-50 hover:bg-red-100 text-red-700 text-xs font-semibold py-2 px-3 rounded-lg border border-red-200 transition">
+                    ⚠️ Morosidad
+                </a>
+                <a href="admin/caja/conciliacion.php" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold py-2 px-3 rounded-lg border border-indigo-200 transition">
+                    📑 Conciliación
+                </a>
+                <a href="admin/auditoria/logs.php" class="bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold py-2 px-3 rounded-lg border border-purple-200 transition">
+                    🛡️ Bitácora Logs
+                </a>
+                <a href="admin/reportes/evaluacion_tesis.php" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold py-2 px-3 rounded-lg border border-amber-200 transition">
+                    🎓 Evaluación Tesis
                 </a>
             </div>
         </div>
@@ -825,11 +863,12 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
             try {
                 const res = await llamarAjax('get_stats');
                 if (res.stats) {
-                    document.getElementById('stat-contrib').textContent = res.stats.contribuyentes.toLocaleString();
-                    document.getElementById('stat-predios').textContent = res.stats.predios.toLocaleString();
-                    document.getElementById('stat-deudas').textContent = res.stats.deudas.toLocaleString();
-                    document.getElementById('stat-recibos').textContent = res.stats.recibos.toLocaleString();
-                    document.getElementById('stat-users').textContent = res.stats.usuarios.toLocaleString();
+                    if (document.getElementById('stat-contrib')) document.getElementById('stat-contrib').textContent = res.stats.contribuyentes.toLocaleString();
+                    if (document.getElementById('stat-predios')) document.getElementById('stat-predios').textContent = res.stats.predios.toLocaleString();
+                    if (document.getElementById('stat-deudas')) document.getElementById('stat-deudas').textContent = res.stats.deudas.toLocaleString();
+                    if (document.getElementById('stat-recibos')) document.getElementById('stat-recibos').textContent = res.stats.recibos.toLocaleString();
+                    if (document.getElementById('stat-users')) document.getElementById('stat-users').textContent = res.stats.usuarios.toLocaleString();
+                    if (document.getElementById('stat-logs')) document.getElementById('stat-logs').textContent = (res.stats.logs || 0).toLocaleString();
                 }
             } catch (e) {
                 console.error(e);
@@ -837,7 +876,7 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
         }
 
         async function ejecutarLimpiezaDirecta() {
-            if (!confirm('¿Estás seguro de que deseas purgar los datos de prueba de contribuyentes, predios, deudas y recibos?\n\nLos administradores y parámetros fiscales NO serán eliminados.')) {
+            if (!confirm('¿Estás seguro de que deseas purgar los datos de prueba de contribuyentes, predios, deudas, recibos y logs?\n\nLos administradores y parámetros fiscales NO serán eliminados.')) {
                 return;
             }
 
@@ -860,6 +899,19 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
             }
         }
 
+        async function ejecutarSimularLogsSolo() {
+            try {
+                agregarLog('Generando eventos de auditoría y trazabilidad cronológica...');
+                const res = await llamarAjax('paso_logs');
+                agregarLog('✔ ' + res.message);
+                await actualizarEstadisticas();
+                alert('¡Bitácora de auditoría actualizada! Total de eventos: ' + res.count);
+            } catch(e) {
+                agregarLog('✘ Error: ' + e.message, true);
+                alert('Error al generar logs: ' + e.message);
+            }
+        }
+
         async function iniciarProcesoSimulacion(limpiarPrimero = false) {
             if (limpiarPrimero && !confirm('¿Deseas purgar los datos anteriores y generar toda la simulación desde cero?')) {
                 return;
@@ -878,44 +930,51 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
             try {
                 // PASO 1 (Opcional): Limpieza
                 if (limpiarPrimero) {
-                    setProgreso(10, 'Paso 1/6: Limpiando base de datos anterior...', 'Purgando tablas de prueba de forma segura...');
+                    setProgreso(8, 'Paso 1/7: Limpiando base de datos anterior...', 'Purgando tablas de prueba de forma segura...');
                     agregarLog('Purgando tablas de prueba (usuarios intactos)...');
                     const resLim = await llamarAjax('limpiar');
                     agregarLog('✔ ' + resLim.message);
                 }
 
                 // PASO 2: Configuración Fiscal
-                setProgreso(25, 'Paso 2/6: Verificando Año Fiscal y Tasas...', 'Activando Año 2026 y estructura de arbitrios...');
+                setProgreso(20, 'Paso 2/7: Verificando Año Fiscal y Tasas...', 'Activando Año 2026 y estructura de arbitrios...');
                 agregarLog('Verificando Año Fiscal 2026 y tasas de arbitrios...');
                 const resConf = await llamarAjax('paso_config');
                 agregarLog('✔ ' + resConf.message);
 
                 // PASO 3: Contribuyentes
-                setProgreso(45, 'Paso 3/6: Registrando Contribuyentes Cusqueños...', `Generando ${cantidadContrib} personas y empresas de Oropesa...`);
+                setProgreso(38, 'Paso 3/7: Registrando Contribuyentes Cusqueños...', `Generando ${cantidadContrib} personas y empresas de Oropesa...`);
                 agregarLog(`Registrando ${cantidadContrib} contribuyentes (RENIEC / SUNAT)...`);
                 const resCont = await llamarAjax('paso_contribuyentes', { cantidad: cantidadContrib });
                 agregarLog('✔ ' + resCont.message);
                 await actualizarEstadisticas();
 
                 // PASO 4: Predios Catastrados
-                setProgreso(65, 'Paso 4/6: Catastrando Predios en Oropesa...', `Asociando ${cantidadPredios} predios a sus propietarios...`);
+                setProgreso(55, 'Paso 4/7: Catastrando Predios en Oropesa...', `Asociando ${cantidadPredios} predios a sus propietarios...`);
                 agregarLog(`Catastrando ${cantidadPredios} predios en Oropesa...`);
                 const resPred = await llamarAjax('paso_predios', { cantidad: cantidadPredios });
                 agregarLog('✔ ' + resPred.message);
                 await actualizarEstadisticas();
 
                 // PASO 5: Emisión de Deudas
-                setProgreso(80, 'Paso 5/6: Emitiendo Deudas Tributarias...', 'Liquidando Impuesto Predial y Arbitrios (28 cuotas por predio)...');
+                setProgreso(72, 'Paso 5/7: Emitiendo Deudas Tributarias...', 'Liquidando Impuesto Predial y Arbitrios (28 cuotas por predio)...');
                 agregarLog('Emitiendo cuotas tributarias en cuenta corriente...');
                 const resEmis = await llamarAjax('paso_emision');
                 agregarLog('✔ ' + resEmis.message);
                 await actualizarEstadisticas();
 
                 // PASO 6: Pagos y Recaudación
-                setProgreso(95, 'Paso 6/6: Simulando Recaudación y Pagos...', 'Generando recibos de pago y activando ingresos del día de hoy...');
+                setProgreso(86, 'Paso 6/7: Simulando Recaudación y Pagos...', 'Generando recibos de pago y activando ingresos del día de hoy...');
                 agregarLog('Simulando pagos en ventanilla y caja municipal...');
                 const resPagos = await llamarAjax('paso_pagos');
                 agregarLog('✔ ' + resPagos.message);
+                await actualizarEstadisticas();
+
+                // PASO 7: Bitácora de Auditoría
+                setProgreso(95, 'Paso 7/7: Generando Bitácora de Auditoría y Trazabilidad...', 'Registrando eventos de acceso, catastro, emisión y arqueo...');
+                agregarLog('Generando eventos cronológicos de auditoría en auditoria_logs...');
+                const resLogs = await llamarAjax('paso_logs');
+                agregarLog('✔ ' + resLogs.message);
                 await actualizarEstadisticas();
 
                 // FINALIZACIÓN
@@ -924,7 +983,20 @@ $countTotalUser = $pdo->query("SELECT COUNT(*) FROM usuarios")->fetchColumn() ?:
                 agregarLog('¡PROCESO COMPLETADO AL 100% PARA TU TESIS!');
                 agregarLog('====================================================');
 
-                alert('¡Simulación completada con éxito!\n\nPuedes ingresar ahora al Panel de Control (Dashboard) para ver los gráficos, la recaudación del día y los deudores.');
+                alert('¡Simulación completada con éxito!\n\nPuedes ingresar ahora al Panel de Control (Dashboard), ver la Bitácora de Logs, la Cartera de Morosidad o el Cuadro de Evaluación de Tesis.');
+
+            } catch (err) {
+                agregarLog('✘ ERROR CRÍTICO: ' + err.message, true);
+                setProgreso(0, '✘ Error en el proceso', err.message);
+                alert('Ocurrió un error: ' + err.message);
+            } finally {
+                btnSim.disabled = false;
+                btnLimSim.disabled = false;
+                btnSim.classList.remove('opacity-50');
+                btnLimSim.classList.remove('opacity-50');
+            }
+        }
+    </script>
 
             } catch (err) {
                 agregarLog('✘ ERROR CRÍTICO: ' + err.message, true);

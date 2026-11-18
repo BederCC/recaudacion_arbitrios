@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 34" width="96" height="34">
+  <rect width="96" height="34" rx="6" fill="#FFD100"/>
+  <circle cx="16" cy="17" r="9" fill="#1C1C1C"/>
+  <circle cx="16" cy="17" r="4.5" fill="#FFD100"/>
+  <circle cx="16" cy="17" r="1.8" fill="#1C1C1C"/>
+  <text x="56" y="16" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="10" fill="#1C1C1C" text-anchor="middle" letter-spacing="0.5">PAGO</text>
+  <text x="56" y="26" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="9" fill="#1C1C1C" text-anchor="middle" letter-spacing="0.2">EFECTIVO</text>
+</svg>

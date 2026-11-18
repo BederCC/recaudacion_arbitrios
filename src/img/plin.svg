@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 34" width="70" height="34">
+  <rect width="70" height="34" rx="6" fill="#00D2C7"/>
+  <circle cx="21" cy="11" r="2.5" fill="#0C2340"/>
+  <text x="35" y="23" font-family="'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="900" font-size="18" fill="#0C2340" text-anchor="middle" letter-spacing="-0.5">plin</text>
+</svg>
