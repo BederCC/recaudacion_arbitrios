@@ -132,3 +132,7 @@ test-results.xml
 *.sln
 *.sw?
 
+# Local database override
+includes/db.local.php
+config.local.php
+
