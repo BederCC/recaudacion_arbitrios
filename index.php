@@ -66,9 +66,9 @@
          <a href="admin/login.php" class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
             Acceso Funcionarios (Admin)
          </a>
-         <a href="simular_tesis_oropesa.php" class="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline">
+         <!-- <a href="simular_tesis_oropesa.php" class="text-indigo-600 hover:text-indigo-800 font-semibold hover:underline">
             Simulador de Tesis
-         </a>
+         </a> -->
       </div>
 
    </div>
