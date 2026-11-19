@@ -12,14 +12,11 @@
 
    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200">
       
-      <!-- Logo & Title -->
+      <!-- Title -->
       <div class="text-center mb-6">
-         <div class="w-20 h-20 mx-auto mb-3 flex items-center justify-center p-1 bg-white rounded-2xl shadow-sm border border-slate-100">
-            <img src="src/img/logovd.png" alt="Escudo de Oropesa" class="h-full w-auto object-contain">
-         </div>
          <h2 class="text-xs font-bold text-blue-800 uppercase tracking-wider">Municipalidad Distrital de Oropesa</h2>
-         <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-0.5">Portal del Vecino SART</h1>
-         <p class="text-xs text-slate-500 mt-1">Consulta y paga tus arbitrios municipales e impuesto predial en línea con total seguridad.</p>
+         <h1 class="text-2xl font-black text-slate-900 tracking-tight mt-1">Portal del Vecino SART</h1>
+         <p class="text-xs text-slate-500 mt-1.5">Consulta y paga tus arbitrios municipales e impuesto predial en línea con total seguridad.</p>
       </div>
 
       <!-- Trust Badges & Real Payment Logos -->
@@ -51,7 +48,7 @@
             <input type="password" id="clave" name="clave"
                class="w-full px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-600 text-sm font-semibold text-slate-900"
                placeholder="Ingrese su clave">
-            <p class="text-[11px] text-slate-400 mt-1">* Para la sustentación de tesis, puedes ingresar cualquier clave o tu DNI.</p>
+            <!-- <p class="text-[11px] text-slate-400 mt-1">* Para la sustentación de tesis, puedes ingresar cualquier clave o tu DNI.</p> -->
          </div>
 
          <button type="submit"

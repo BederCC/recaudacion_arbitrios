@@ -62,15 +62,110 @@ function renderHeader($title)
          .main-scroll::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
          }
+
+         /* Reglas explícitas e infalibles para el Drawer del Sidebar Móvil */
+         @media (max-width: 767px) {
+            #admin-sidebar {
+               position: fixed !important;
+               top: 0 !important;
+               bottom: 0 !important;
+               left: 0 !important;
+               width: 16rem !important; /* 256px */
+               height: 100vh !important;
+               z-index: 50 !important;
+               transform: translateX(-100%) !important;
+               transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+               box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+            }
+            #admin-sidebar.sidebar-open {
+               transform: translateX(0) !important;
+            }
+            #sidebar-backdrop {
+               position: fixed !important;
+               inset: 0 !important;
+               background: rgba(15, 23, 42, 0.65) !important;
+               backdrop-filter: blur(2px) !important;
+               z-index: 40 !important;
+               opacity: 0;
+               pointer-events: none;
+               transition: opacity 0.28s ease !important;
+               display: block !important;
+            }
+            #sidebar-backdrop.active {
+               opacity: 1 !important;
+               pointer-events: auto !important;
+            }
+         }
+         @media (min-width: 768px) {
+            #admin-sidebar {
+               position: static !important;
+               transform: none !important;
+               display: flex !important;
+            }
+            #sidebar-backdrop {
+               display: none !important;
+            }
+         }
       </style>
+
+      <script>
+         // Función global infalible para abrir y cerrar el menú móvil
+         function toggleSidebar(forceState = null) {
+            const sidebar = document.getElementById('admin-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar) return;
+
+            const isOpen = sidebar.classList.contains('sidebar-open');
+            const shouldOpen = forceState !== null ? forceState : !isOpen;
+
+            if (shouldOpen) {
+               sidebar.classList.add('sidebar-open');
+               if (backdrop) backdrop.classList.add('active');
+            } else {
+               sidebar.classList.remove('sidebar-open');
+               if (backdrop) backdrop.classList.remove('active');
+            }
+         }
+
+         // Cerrar con tecla Escape o al hacer clic en un enlace en móviles
+         document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && window.innerWidth < 768) {
+               toggleSidebar(false);
+            }
+         });
+
+         document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('#admin-sidebar nav a');
+            links.forEach(function(link) {
+               link.addEventListener('click', function() {
+                  if (window.innerWidth < 768) {
+                     toggleSidebar(false);
+                  }
+               });
+            });
+         });
+      </script>
    </head>
 
    <body class="bg-gray-100 font-sans antialiased flex h-screen overflow-hidden">
 
+      <!-- Mobile Backdrop Overlay -->
+      <div 
+         id="sidebar-backdrop"
+         onclick="toggleSidebar(false)">
+      </div>
+
       <!-- Sidebar -->
-      <aside class="w-64 bg-blue-900 text-white shrink-0 hidden md:flex flex-col">
-         <div class="h-16 flex items-center justify-center border-b border-blue-800">
-            <span class="text-xl font-bold tracking-wider">🏛️ SART ADMIN</span>
+      <aside 
+         id="admin-sidebar"
+         class="w-64 bg-blue-900 text-white shrink-0 flex flex-col">
+         
+         <div class="h-16 flex items-center justify-between md:justify-center px-4 border-b border-blue-800">
+            <span class="text-xl font-bold tracking-wider">SART ADMIN</span>
+            <!-- Botón Cerrar en Móvil -->
+            <button onclick="toggleSidebar(false)" type="button" aria-label="Cerrar Menú" class="md:hidden text-blue-200 hover:text-white p-1.5 rounded-lg hover:bg-blue-800 transition focus:outline-none">
+               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
          </div>
 
          <nav class="flex-1 px-2 py-4 space-y-2 overflow-y-auto sidebar-scroll">
@@ -141,9 +236,17 @@ function renderHeader($title)
       <!-- Main Content Wrapper -->
       <div class="flex-1 flex flex-col overflow-hidden">
          <!-- Mobile Header -->
-         <header class="flex justify-between items-center p-4 bg-white shadow md:hidden">
-            <span class="text-xl font-bold text-blue-900">SART ADMIN</span>
-            <button class="text-gray-600 focus:outline-none">☰</button>
+         <header class="flex justify-between items-center p-4 bg-white border-b border-slate-200 shadow-sm md:hidden z-30">
+            <span class="text-xl font-bold text-blue-900 tracking-wide">SART ADMIN</span>
+            <button 
+               onclick="toggleSidebar()" 
+               type="button" 
+               aria-label="Abrir Menú"
+               class="text-slate-700 hover:text-blue-900 hover:bg-slate-100 active:bg-slate-200 p-2 rounded-xl border border-slate-200 focus:outline-none transition flex items-center justify-center cursor-pointer">
+               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+               </svg>
+            </button>
          </header>
 
          <!-- Main Content -->
