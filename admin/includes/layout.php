@@ -22,6 +22,47 @@ function renderHeader($title)
       <link href="<?php echo asset('src/output.css'); ?>" rel="stylesheet">
       <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      <style>
+         /* Scrollbar elegante, sutil y minimalista para el Sidebar azul */
+         .sidebar-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(147, 197, 253, 0.3) transparent;
+         }
+         .sidebar-scroll::-webkit-scrollbar {
+            width: 5px;
+         }
+         .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+         }
+         .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: rgba(147, 197, 253, 0.25);
+            border-radius: 9999px;
+            transition: background-color 0.2s ease;
+         }
+         .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(147, 197, 253, 0.6);
+         }
+
+         /* Scrollbar sutil para el área de contenido principal */
+         .main-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+         }
+         .main-scroll::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+         }
+         .main-scroll::-webkit-scrollbar-track {
+            background: #f8fafc;
+         }
+         .main-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+         }
+         .main-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+         }
+      </style>
    </head>
 
    <body class="bg-gray-100 font-sans antialiased flex h-screen overflow-hidden">
@@ -32,7 +73,7 @@ function renderHeader($title)
             <span class="text-xl font-bold tracking-wider">🏛️ SART ADMIN</span>
          </div>
 
-         <nav class="flex-1 px-2 py-4 space-y-2 overflow-y-auto">
+         <nav class="flex-1 px-2 py-4 space-y-2 overflow-y-auto sidebar-scroll">
             <a href="<?php echo url('admin/dashboard.php'); ?>" class="flex items-center px-4 py-2 rounded hover:bg-blue-800 transition <?php echo strpos($_SERVER['PHP_SELF'], 'dashboard.php') ? 'bg-blue-800' : ''; ?>">
                <span class="mr-3">📊</span> Dashboard
             </a>
@@ -106,7 +147,7 @@ function renderHeader($title)
          </header>
 
          <!-- Main Content -->
-         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6 main-scroll">
          <?php
       }
 

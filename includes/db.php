@@ -17,7 +17,7 @@ $local_port = '3306';
 $hostinger_host = 'localhost';             // Usualmente 'localhost' en Hostinger
 $hostinger_db   = 'u226387153_arbitrio';  // Nombre de Base de Datos en Hostinger
 $hostinger_user = 'u226387153_arbitrio';       // Usuario de Base de Datos en Hostinger
-$hostinger_pass = 'Arbitrios12/34';    // Contraseña creada en Hostinger
+$hostinger_pass = 'Arbitrio12/34';    // Contraseña creada en Hostinger
 $hostinger_port = '3306';
 
 // =========================================================================
